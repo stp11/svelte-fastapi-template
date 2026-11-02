@@ -1,0 +1,70 @@
+name: BE Lint and Test
+
+on:
+  pull_request:
+    types: [opened, synchronize, ready_for_review]
+    branches: ["main"]
+    paths-ignore: ["frontend/**"]
+
+  push:
+    branches: ["main"]
+    paths-ignore: ["frontend/**"]
+
+jobs:
+  lint:
+    name: Lint
+    runs-on: ubuntu-latest
+    if: github.event.pull_request.draft == false
+    defaults:
+      run:
+        working-directory: backend
+    steps:
+      - uses: actions/checkout@v7
+      - uses: astral-sh/setup-uv@v10.3.3
+        with:
+          version: "0.13.4"  # Keep in sync with the Dockerfile
+      - run: uv sync --locked --only-dev
+      - run: uv run --no-sync pre-commit run flake8 --all-files
+      - run: uv run --no-sync pre-commit run black --all-files
+      - run: uv run --no-sync pre-commit run isort --all-files
+
+  test:
+    name: Test
+    runs-on: ubuntu-latest
+    if: github.event.pull_request.draft == false
+    services:
+      postgres:
+        image: postgres:17
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: app
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+    env:
+      ALLOWED_ORIGINS: "*"
+      # The migration step uses this database; pytest only reuses the server
+      # and creates and drops its own.
+      DATABASE_URL: "postgresql+psycopg://postgres:postgres@localhost:5432/app"
+    defaults:
+      run:
+        working-directory: backend
+    steps:
+      - uses: actions/checkout@v7
+      - uses: astral-sh/setup-uv@v10.3.3
+        with:
+          version: "0.13.4"  # Keep in sync with the Dockerfile
+
+      - name: Install dependencies
+        run: uv sync --locked
+
+      - name: Run migrations
+        run: uv run --no-sync alembic upgrade head
+
+      - name: Run tests with Pytest
+        run: uv run --no-sync python -m pytest

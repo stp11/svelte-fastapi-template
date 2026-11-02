@@ -1,0 +1,53 @@
+{
+  "name": "app",
+  "private": true,
+  "version": "0.0.1",
+  "type": "module",
+  "imports": {
+    "#lib/*": "./src/lib/*",
+    "#client": "./src/client/index.ts",
+    "#client-api": "./src/client-api.ts"
+  },
+  "scripts": {
+    "dev": "vite dev",
+    "build": "vite build",
+    "preview": "vite preview",
+    "lint": "eslint . --ext .ts,.svelte --max-warnings=0 --no-warn-ignored",
+    "lint:fix": "bun run lint -- --fix",
+    "lint:staged": "eslint --ext .ts,.svelte --max-warnings=0 --fix --no-warn-ignored",
+    "prepare": "svelte-kit sync || echo ''",
+    "check": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json",
+    "check:watch": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json --watch",
+    "prettier:fix": "prettier --write src/ *[.js,.ts]",
+    "prettier:check": "prettier --check src/",
+    "generate-client": "openapi-ts"
+  },
+  "devDependencies": {
+    "@eslint/compat": "^2.1.1",
+    "@eslint/js": "^10.0.1",
+    "@hey-api/openapi-ts": "0.99.0",
+    "@lucide/svelte": "^1.64.0",
+    "@sveltejs/kit": "^3.1.0",
+    "@sveltejs/vite-plugin-svelte": "^7.3.1",
+    "@tailwindcss/vite": "^4.3.3",
+    "@trivago/prettier-plugin-sort-imports": "^6.0.2",
+    "@types/node": "^26",
+    "eslint": "^10.13.0",
+    "eslint-config-prettier": "^10.1.8",
+    "eslint-plugin-svelte": "^3.23.1",
+    "globals": "^17.13.0",
+    "prettier": "^3.9.10",
+    "prettier-plugin-svelte": "^4.1.1",
+    "prettier-plugin-tailwindcss": "^0.8.1",
+    "svelte": "^5.57.3",
+    "svelte-check": "^4.7.7",
+    "tailwindcss": "^4.3.3",
+    "typescript": "^6.0.3",
+    "typescript-eslint": "^8.72.1",
+    "vite": "^8.3.5"
+  },
+  "dependencies": {
+    "@sveltejs/adapter-static": "^3.0.10",
+    "@tanstack/svelte-query": "^6.3.6"
+  }
+}

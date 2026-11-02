@@ -1,0 +1,28 @@
+name: FE Lint
+
+on:
+  pull_request:
+    types: [opened, synchronize, ready_for_review]
+    branches: ["main"]
+    paths-ignore: ["backend/**", "frontend/src/client/**"]
+
+  push:
+    branches: ["main"]
+    paths-ignore: ["backend/**", "frontend/src/client/**"]
+
+jobs:
+  lint:
+    name: Lint
+    runs-on: ubuntu-latest
+    if: github.event.pull_request.draft == false
+    defaults:
+      run:
+        working-directory: frontend
+    steps:
+      - uses: actions/checkout@v7
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: 1.3.5
+      - run: bun install --frozen-lockfile
+      - run: bun run lint
+      - run: bun run prettier:check
